@@ -4,6 +4,7 @@ import "./App.css"
 function App() {
   const [tenSecond, setTenSecond] = useState(10)
   const [count, setCount] = useState(0)
+  const countRef = useRef(0)
   const intRef = useRef()
   const videoRef = useRef()
   const imgRef = useRef()
@@ -34,25 +35,27 @@ function App() {
   }
 
 
-  useEffect(() => {
+   const startTenSecond = () => {
+    clearInterval(intRef.current)
+    setTenSecond(10)
+    setCount(0)
+    countRef.current = 0
     intRef.current = setInterval(() => {
-      setTenSecond(prev => {
-        if (prev <= 0) {
-          clearInterval(intRef.current)
-          alert(`Clicked ${count} times!`)
-          return 0
-        } else {
-          return prev - 1
-        }
-      })
+      setTenSecond(prev => prev - 1)
     }, 1000)
-
-    return () => clearInterval(intRef.current)
-  }, [count])
-
-  const handleClick = () => {
-    setCount(prev => prev + 1)
   }
+
+  useEffect(() => {
+    if (tenSecond <= 0) {
+      clearInterval(intRef.current)
+      alert(`Clicked ${countRef.current}times!`)
+    }
+  }, [tenSecond])
+
+  useEffect(() => {
+    startTenSecond()
+    return () => clearInterval(intRef.current)
+  }, [])
 
   return (
     <div style={{
@@ -68,7 +71,10 @@ function App() {
       <div style={{ textAlign: "center", marginTop: "50px" }}>
         <h1>Timer: {tenSecond}</h1>
         <h2>Click Count: {count}</h2>
-        <button onClick={handleClick}>Click me!</button>
+        <button onClick={() => {
+          if (tenSecond > 0) setCount(prev => prev + 1)
+          countRef.current += 1
+        }}>Click me!</button>
       </div>
       {/* 2 */}
       <img ref={imgRef} onMouseEnter={In} onMouseLeave={Out}
